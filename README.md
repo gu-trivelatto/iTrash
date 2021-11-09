@@ -1,2 +1,5 @@
 # iTrash
-Final project of the "PCS3645 - Laboratório Digital II" subject of the Polytechnic School of USP
+
+The project here described is a prototype for an atuomated trash system, with IoT integration for usage management.
+
+Developed using VHDL.
