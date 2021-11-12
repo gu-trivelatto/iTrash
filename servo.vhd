@@ -8,6 +8,7 @@ entity servo is
         acionar     : in  std_logic;
         pwm         : out std_logic;
         closing_led : out std_logic;
+        lid_open    : out std_logic;
         db_estado   : out std_logic_vector(6 downto 0);
         db_reset    : out std_logic;
         db_acionar  : out std_logic;
@@ -74,6 +75,7 @@ begin
 
     pwm <= s_pwm;
     closing_led <= s_close_mid;
+    lid_open <= s_lid_open;
 
     db_reset <= s_reset;
     db_acionar <= s_acionar;
