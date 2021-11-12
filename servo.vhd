@@ -7,7 +7,11 @@ entity servo is
         reset       : in  std_logic;
         acionar     : in  std_logic;
         pwm         : out std_logic;
-        closing_led : out std_logic
+        closing_led : out std_logic;
+        db_estado   : out std_logic_vector(6 downto 0);
+        db_reset    : out std_logic;
+        db_acionar  : out std_logic;
+        db_pwm      : out std_logic
     );
 end entity;
 
@@ -53,20 +57,26 @@ architecture servo_arch of servo is
     );
     end component;
 
-    signal s_reset, s_acionar, s_acionar_ed, s_close_mid, s_close_end, s_lid_open, s_reset_timer, s_count_mid, s_count_end, s_pwm : std_logic;
+    signal s_reset, s_acionar, s_acionar_ed, s_close_mid, s_close_end, s_lid_open, s_reset_timer, s_count_mid, s_count_end, s_pwm, s_state : std_logic;
 
 begin
 
     s_reset <= reset;
     s_acionar <= acionar;
 
-    UC: servo_uc port map(clock, s_reset, s_acionar_ed, s_close_mid, s_close_end, s_lid_open, s_reset_timer, s_count_mid, s_count_end, open);
+    UC: servo_uc port map(clock, s_reset, s_acionar_ed, s_close_mid, s_close_end, s_lid_open, s_reset_timer, s_count_mid, s_count_end, s_state);
 
     FD: servo_fd port map(clock, s_reset, s_lid_open, s_reset_timer, s_count_mid, s_count_end, s_pwm, s_close_mid, s_close_end);
 
     ED: edge_detector port map(clock, s_acionar, s_acionar_ed);
 
+    SSEG: hex7seg port map(s_state, db_estado);
+
     pwm <= s_pwm;
     closing_led <= s_close_mid;
+
+    db_reset <= s_reset;
+    db_acionar <= s_acionar;
+    db_pwm <= s_pwm;
 
 end architecture;
