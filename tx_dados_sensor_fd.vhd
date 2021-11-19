@@ -8,28 +8,21 @@ entity tx_dados_sensor_fd is
         clock: in std_logic;
         reset: in std_logic;
         transmite: in std_logic;
-        recebe_dado: in std_logic;
         proximo: in std_logic;
-        angulo2: in std_logic_vector(7 downto 0); -- digitos BCD
-        angulo1: in std_logic_vector(7 downto 0); -- de angulo
-        angulo0: in std_logic_vector(7 downto 0);
-        distancia2: in std_logic_vector(3 downto 0); -- e de distancia
+        distancia2: in std_logic_vector(3 downto 0);
         distancia1: in std_logic_vector(3 downto 0);
         distancia0: in std_logic_vector(3 downto 0);
-        entrada_serial: in std_logic;
         saida_serial: out std_logic;
-        dado_recebido: out std_logic_vector (7 downto 0);
         fim: out std_logic;
         pronto_tx: out std_logic;
-        pronto_rx: out std_logic;
-		  db_dado_tx: out std_logic_vector (7 downto 0);
-        db_estado_tx, db_estado_rx: out std_logic_vector (3 downto 0)
+		db_dado_tx: out std_logic_vector (7 downto 0);
+        db_estado_tx: out std_logic_vector (3 downto 0)
     );
 end entity;
 
 architecture tx_dados_sensor_fd_arch of tx_dados_sensor_fd is
      
-    component mux_8x1_n
+    component mux_4x1_n
         generic (
             constant BITS: integer
         );
@@ -38,11 +31,7 @@ architecture tx_dados_sensor_fd_arch of tx_dados_sensor_fd is
             D1 :     in  std_logic_vector (BITS-1 downto 0);
             D2 :     in  std_logic_vector (BITS-1 downto 0);
             D3 :     in  std_logic_vector (BITS-1 downto 0);
-            D4 :     in  std_logic_vector (BITS-1 downto 0);
-            D5 :     in  std_logic_vector (BITS-1 downto 0);
-            D6 :     in  std_logic_vector (BITS-1 downto 0);
-            D7 :     in  std_logic_vector (BITS-1 downto 0);
-            SEL:     in  std_logic_vector (2 downto 0);
+            SEL:     in  std_logic_vector (1 downto 0);
             MUX_OUT: out std_logic_vector (BITS-1 downto 0)
         );
     end component;
@@ -77,42 +66,55 @@ architecture tx_dados_sensor_fd_arch of tx_dados_sensor_fd is
         );
     end component;
     
-    signal s_angulo0, s_angulo1, s_angulo2, s_distancia0, s_distancia1, s_distancia2, s_virgula, s_ponto : std_logic_vector (7 downto 0);
-    signal s_reset, s_transmite, s_fim, s_proximo, s_saida_serial, s_entrada_serial, s_recebe_dado, s_tem_dado : std_logic;
-    signal s_posicao : std_logic_vector (2 downto 0);
+    signal s_porcentagem0, s_porcentagem1, s_porcentagem2, s_porcento : std_logic_vector (7 downto 0);
+    signal s_reset, s_transmite, s_fim, s_proximo, s_saida_serial : std_logic;
+    signal s_posicao : std_logic_vector (1 downto 0);
     signal s_mux_out : std_logic_vector (7 downto 0);
-	 signal s_dado_tx: std_logic_vector (7 downto 0);
-    signal s_estado_tx, s_estado_rx : std_logic_vector (3 downto 0);
+	signal s_dado_tx: std_logic_vector (7 downto 0);
+    signal s_estado_tx : std_logic_vector (3 downto 0);
+    signal s_porcentagem : std_logic_vector (11 downto 0);
 
 begin
 
-    s_angulo0 <= angulo0;
-    s_angulo1 <= angulo1;
-    s_angulo2 <= angulo2;
-    s_distancia0 <= "0011" & distancia0;
-    s_distancia1 <= "0011" & distancia1;
-    s_distancia2 <= "0011" & distancia2;
-    s_virgula <= "00101100";
-    s_ponto <= "00101110";
+    s_porcentagem0 <= "0011" & s_porcentagem(3 downto 0);
+    s_porcentagem1 <= "0011" & s_porcentagem(7 downto 4);
+    s_porcentagem2 <= "0011" & s_porcentagem(11 downto 8);
+    s_porcento <= "00100101";
 
     s_reset <= reset;
     s_transmite <= transmite;
     s_proximo <= proximo;
-    s_recebe_dado <= recebe_dado;
-    s_entrada_serial <= entrada_serial;
 
-    MUX: mux_8x1_n generic map (BITS => 8) port map (s_angulo0, s_angulo1, s_angulo2, s_virgula, s_distancia0, 
-                                                     s_distancia1, s_distancia2, s_ponto, s_posicao, s_mux_out); 
+    MUX: mux_4x1_n generic map (BITS => 8) port map (s_porcentagem0, s_porcentagem1, s_porcentagem2, s_porcento, s_posicao, s_mux_out); 
 
-    UART: uart_8N2 port map (clock, s_reset, s_transmite, s_mux_out, s_entrada_serial, s_recebe_dado,
-                             s_saida_serial, pronto_tx, dado_recebido, s_tem_dado, pronto_rx, s_estado_tx, s_estado_rx, s_dado_tx);
+    UART: uart_8N2 port map (clock, s_reset, s_transmite, s_mux_out, '0', '0', s_saida_serial, pronto_tx, dado_recebido, 
+                             s_tem_dado, open, s_estado_tx, open, s_dado_tx);
 
-    CONT: contadorg_m generic map (M => 8) port map (clock, s_reset, '0', s_proximo, s_posicao, s_fim, open);
+    CONT: contadorg_m generic map (M => 4) port map (clock, s_reset, '0', s_proximo, s_posicao, s_fim, open);
 
     saida_serial <= s_saida_serial;
     fim <= s_fim;
     db_estado_tx <= s_estado_tx;
-    db_estado_rx <= s_estado_rx;
     db_dado_tx <= s_dado_tx;
+
+    process (distancia1, distancia0):
+    begin
+        case distancia1 is 
+            when "0001" => s_porcentagem <= "000000000000";
+            when "0000" =>
+                case distancia0 is
+                    when "0000" => s_porcentagem <= "000100000000";
+                    when "0001" => s_porcentagem <= "000010010000";
+                    when "0010" => s_porcentagem <= "000010000000";
+                    when "0011" => s_porcentagem <= "000001110000";
+                    when "0100" => s_porcentagem <= "000001100000";
+                    when "0101" => s_porcentagem <= "000001010000";
+                    when "0110" => s_porcentagem <= "000001000000";
+                    when "0111" => s_porcentagem <= "000000110000";
+                    when "1000" => s_porcentagem <= "000000100000";
+                    when "1001" => s_porcentagem <= "000000010000";
+                end case;
+        end case;
+    end process;
     
 end architecture;
