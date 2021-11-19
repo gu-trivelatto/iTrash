@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.math_real.all;
 
-entity tx_dados_sonar_fd is
+entity tx_dados_sensor_fd is
     port (
         clock: in std_logic;
         reset: in std_logic;
@@ -27,7 +27,7 @@ entity tx_dados_sonar_fd is
     );
 end entity;
 
-architecture tx_dados_sonar_fd_arch of tx_dados_sonar_fd is
+architecture tx_dados_sensor_fd_arch of tx_dados_sensor_fd is
      
     component mux_8x1_n
         generic (

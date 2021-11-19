@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity tx_dados_sonar_uc is
+entity tx_dados_sensor_uc is
     port (
         clock, reset, transmitir, tick, fim, pronto_tx : in std_logic;
         pronto, transmite, zera, proximo : out std_logic;
@@ -9,7 +9,7 @@ entity tx_dados_sonar_uc is
     );
 end entity;
 
-architecture tx_dados_sonar_uc_arch of tx_dados_sonar_uc is
+architecture tx_dados_sensor_uc_arch of tx_dados_sensor_uc is
 
     type tipo_estado is (inicial, preparacao, espera, atualiza_dado, transmissao, testa_fim, final);
     signal Eatual: tipo_estado;  -- estado atual
@@ -88,4 +88,4 @@ begin
         end case;
     end process;
 
-end tx_dados_sonar_uc_arch;
+end tx_dados_sensor_uc_arch;
