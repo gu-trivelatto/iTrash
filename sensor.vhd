@@ -9,6 +9,9 @@ entity sensor is
         echo        : in  std_logic;
         aberto      : in  std_logic;
         trigger     : out std_logic;
+        unidade     : out std_logic;
+        dezena      : out std_logic;
+        centena     : out std_logic;
         db_estado   : out std_logic_vector(6 downto 0);
         db_uni_hex  : out std_logic_vector(6 downto 0);
         db_dez_hex  : out std_logic_vector(6 downto 0);
@@ -74,6 +77,9 @@ begin
 
     trigger <= s_trigger;
     medida <= s_medida;
+    unidade <= s_medida(3 downto 0);
+    dezena <= s_medida(7 downto 4);
+    centena <= s_medida(11 downto 8);
 
     db_reset <= reset;
     db_ligar <= ligar;
