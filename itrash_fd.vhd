@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.math_real.all;
 
-entity servo_fd is
+entity itrash_fd is
     port (
         clock        : in  std_logic;
         reset        : in  std_logic;
@@ -19,7 +19,7 @@ entity servo_fd is
     );
 end entity;
 
-architecture servo_fd_arch of servo_fd is
+architecture itrash_fd_arch of itrash_fd is
 
     component servo port (
         clock       : in  std_logic;
@@ -43,7 +43,7 @@ architecture servo_fd_arch of servo_fd is
             echo         : in  std_logic;
             saida_serial : out std_logic;
             trigger      : out std_logic;
-            db_estado    : out std_logic
+            db_estado    : out std_logic_vector(3 downto 0)
         );
     end component;
 
@@ -58,9 +58,9 @@ begin
     s_acionar <= acionar;
     s_echo <= echo;
 
-    SERVO: servo port map(clock, s_reset, s_acionar, s_pwm, s_closing_led, s_lid_open, open, open, open, open);
+    CTR_SER: servo port map(clock, s_reset, s_acionar, s_pwm, s_closing_led, s_lid_open, open, open, open, open);
 
-    MEDIDA: modulo_medida port map(clock, s_reset, s_lid_open, s_echo, s_saida_serial, s_trigger, s_db_estado_medida);
+    MOD_MED: modulo_medida port map(clock, s_reset, s_lid_open, s_echo, s_saida_serial, s_trigger, s_db_estado_medida);
 
     pwm <= s_pwm;
     closing_led <= s_closing_led;

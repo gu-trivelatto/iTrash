@@ -27,12 +27,12 @@ architecture modulo_medida_fd_arch of modulo_medida_fd is
             echo        : in  std_logic;
             aberto      : in  std_logic;
             trigger     : out std_logic;
-            unidade     : out std_logic;
-            dezena      : out std_logic;
-            centena     : out std_logic;
+            unidade     : out std_logic_vector(3 downto 0);
+            dezena      : out std_logic_vector(3 downto 0);
+            centena     : out std_logic_vector(3 downto 0);
             db_estado   : out std_logic_vector(6 downto 0);
             db_uni_hex  : out std_logic_vector(6 downto 0);
-            db_dez_hex  : out std_logic_vector(6 downto 0);
+            db_dec_hex  : out std_logic_vector(6 downto 0);
             db_cent_hex : out std_logic_vector(6 downto 0);
             db_reset    : out std_logic;
             db_ligar    : out std_logic;
@@ -55,8 +55,9 @@ architecture modulo_medida_fd_arch of modulo_medida_fd is
         );
     end component;
     
-    signal s_distancia2, s_distancia1, s_distancia0 : std_logic_vector (7 downto 0);
+    signal s_distancia2, s_distancia1, s_distancia0 : std_logic_vector (3 downto 0);
     signal s_reset, s_transmite, s_fim, s_proximo, s_saida_serial, s_medir : std_logic;
+    signal s_echo, s_aberto, s_transmitir, s_trigger, s_pronto : std_logic;
     signal s_posicao : std_logic_vector (1 downto 0);
     signal s_mux_out : std_logic_vector (7 downto 0);
 	signal s_dado_tx: std_logic_vector (7 downto 0);
@@ -71,7 +72,7 @@ begin
     s_transmitir <= transmitir;
     s_medir <= medir;
 
-    SENSOR: sensor port map (clock, s_reset, s_medir, s_echo, s_aberto, s_trigger, s_distancia0,
+    SENS: sensor port map (clock, s_reset, s_medir, s_echo, s_aberto, s_trigger, s_distancia0,
                              s_distancia1, s_distancia2, open, open, open, open, open, open, open); 
 
     TX: tx_dados_sensor port map (clock, s_reset, s_transmitir, s_distancia2, s_distancia1,

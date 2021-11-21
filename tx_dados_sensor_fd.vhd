@@ -87,8 +87,8 @@ begin
 
     MUX: mux_4x1_n generic map (BITS => 8) port map (s_porcentagem0, s_porcentagem1, s_porcentagem2, s_porcento, s_posicao, s_mux_out); 
 
-    UART: uart_8N2 port map (clock, s_reset, s_transmite, s_mux_out, '0', '0', s_saida_serial, pronto_tx, dado_recebido, 
-                             s_tem_dado, open, s_estado_tx, open, s_dado_tx);
+    UART: uart_8N2 port map (clock, s_reset, s_transmite, s_mux_out, '0', '0', s_saida_serial, pronto_tx, open, 
+                             open, open, s_estado_tx, open, s_dado_tx);
 
     CONT: contadorg_m generic map (M => 4) port map (clock, s_reset, '0', s_proximo, s_posicao, s_fim, open);
 
@@ -97,7 +97,7 @@ begin
     db_estado_tx <= s_estado_tx;
     db_dado_tx <= s_dado_tx;
 
-    process (distancia1, distancia0):
+    process (distancia1, distancia0)
     begin
         case distancia1 is 
             when "0001" => s_porcentagem <= "000000000000";
@@ -113,7 +113,9 @@ begin
                     when "0111" => s_porcentagem <= "000000110000";
                     when "1000" => s_porcentagem <= "000000100000";
                     when "1001" => s_porcentagem <= "000000010000";
+                    when others => s_porcentagem <= "000000000000";
                 end case;
+            when others => s_porcentagem <= "000000000000";
         end case;
     end process;
     

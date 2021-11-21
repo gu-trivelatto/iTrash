@@ -84,10 +84,7 @@ begin
 
     saida_serial <= s_saida_serial;
     pronto <= s_pronto;
-    dado_recebido <= s_dado_recebido;
-    pronto_rx <= s_pronto_rx;
     db_estado_tx <= s_estado_tx;
-    db_estado_rx <= s_estado_rx;
     db_dado_tx <= s_dado_tx;
     db_estado_tx_dados_sensor <= s_db_estado;
 

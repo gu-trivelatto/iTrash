@@ -14,7 +14,7 @@ entity itrash is
         trigger      : out std_logic;
         db_estado    : out std_logic_vector(6 downto 0);
         db_uni_hex   : out std_logic_vector(6 downto 0);
-        db_dez_hex   : out std_logic_vector(6 downto 0);
+        db_dec_hex   : out std_logic_vector(6 downto 0);
         db_reset     : out std_logic;
         db_acionar   : out std_logic;
         db_pwm       : out std_logic
@@ -60,8 +60,10 @@ architecture itrash_arch of itrash is
     );
     end component;
 
-    signal s_reset, s_acionar, s_acionar_ed, s_mede, s_pwm, s_closing_led, s_lid_open, s_state : std_logic;
-    signal s_medida : std_logic(7 downto 0);
+    signal s_reset, s_acionar, s_acionar_ed, s_mede, s_pwm, s_saida_serial : std_logic;
+    signal s_closing_led, s_lid_open, s_echo, s_trigger : std_logic;
+    signal s_medida : std_logic_vector(7 downto 0);
+    signal s_state : std_logic_vector(3 downto 0);
 
 begin
 
@@ -69,9 +71,9 @@ begin
     s_acionar <= acionar;
     s_echo <= echo;
 
-    UC: servo_uc port map(clock, s_reset, s_lid_open, s_mede, s_state);
+    UC: itrash_uc port map(clock, s_reset, s_lid_open, s_mede, s_state);
 
-    FD: servo_fd port map(clock, s_reset, s_mede, s_acionar_ed, s_echo, s_pwm, s_closing_led, 
+    FD: itrash_fd port map(clock, s_reset, s_mede, s_acionar_ed, s_echo, s_pwm, s_closing_led, 
                           s_lid_open, s_medida, s_saida_serial, s_trigger);
 
     ED: edge_detector port map(clock, s_acionar, s_acionar_ed);

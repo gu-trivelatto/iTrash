@@ -58,7 +58,8 @@ architecture servo_arch of servo is
     );
     end component;
 
-    signal s_reset, s_acionar, s_acionar_ed, s_close_mid, s_close_end, s_lid_open, s_reset_timer, s_count_mid, s_count_end, s_pwm, s_state : std_logic;
+    signal s_reset, s_acionar, s_acionar_ed, s_close_mid, s_close_end, s_lid_open, s_reset_timer, s_count_mid, s_count_end, s_pwm : std_logic;
+    signal s_state : std_logic_vector(3 downto 0);
 
 begin
 

@@ -11,7 +11,7 @@ entity modulo_medida is
         echo         : in  std_logic;
         saida_serial : out std_logic;
         trigger      : out std_logic;
-        db_estado    : out std_logic
+        db_estado    : out std_logic_vector(3 downto 0)
     );
 end entity;
 

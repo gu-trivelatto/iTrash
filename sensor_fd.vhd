@@ -38,7 +38,7 @@ begin
     s_mede <= mede;
     s_echo <= echo;
 
-    HCSR04: interface_hcsr04 port map(clock, s_reset, s_mede, s_echo, s_trigger, s_medida, s_pronto, open)
+    HCSR04: interface_hcsr04 port map(clock, s_reset, s_mede, s_echo, s_trigger, s_medida, s_pronto, open);
 
     pronto <= s_pronto;
     medida <= s_medida;
