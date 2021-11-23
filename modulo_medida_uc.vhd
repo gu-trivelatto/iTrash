@@ -6,15 +6,17 @@ entity modulo_medida_uc is
         clock      : in  std_logic;
         reset      : in  std_logic;
         tx_pronto  : in  std_logic;
+        timer_end  : in  std_logic;
         medir      : out std_logic;
         transmitir : out std_logic;
+        contar     : out std_logic;
         estado_hex : out std_logic_vector (3 downto 0)
     );
 end entity;
 
 architecture modulo_medida_uc_arch of modulo_medida_uc is
 
-    type tipo_estado is (mede, transmite);
+    type tipo_estado is (espera, mede, transmite);
     signal Eatual: tipo_estado;  -- estado atual
     signal Eprox:  tipo_estado;  -- proximo estado
 
@@ -36,6 +38,10 @@ begin
 
       case Eatual is
 
+        when espera =>      if timer_end='1' then Eprox <= mede;
+                            else                  Eprox <= espera;
+                            end if;
+
         when mede =>        Eprox <= transmite;
                             
         when transmite =>   if tx_pronto='1' then Eprox <= mede;
@@ -50,6 +56,9 @@ begin
 
     -- logica de saida (Moore)
     with Eatual select
+        contar <= '1' when espera, '0' when others;
+
+    with Eatual select
         medir <= '1' when mede, '0' when others;
 
     with Eatual select
@@ -59,8 +68,9 @@ begin
     process (Eatual)
     begin
         case Eatual is
-            when mede => estado_hex <= "0000";
-            when transmite => estado_hex <= "0001";
+            when espera => estado_hex <= "0000";
+            when mede => estado_hex <= "0001";
+            when transmite => estado_hex <= "0010";
             when others => estado_hex <= "1111";
         end case;
     end process;
