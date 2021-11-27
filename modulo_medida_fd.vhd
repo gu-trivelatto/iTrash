@@ -6,16 +6,21 @@ use IEEE.math_real.all;
 entity modulo_medida_fd is
     port (
         clock        : in  std_logic;
-        reset        : in  std_logic;
-        echo         : in  std_logic;
-        aberto       : in  std_logic;
-        medir        : in  std_logic;
-        transmitir   : in  std_logic;
-        contar       : in  std_logic;
-        saida_serial : out std_logic;
-        pronto       : out std_logic;
-        timer_end    : out std_logic;
-        trigger      : out std_logic
+		  reset        : in  std_logic;
+		  echo         : in  std_logic;
+		  aberto       : in  std_logic;
+		  medir        : in  std_logic;
+		  transmitir   : in  std_logic;
+		  contar       : in  std_logic;
+		  reset_sensor : in  std_logic;
+		  saida_serial : out std_logic;
+		  pronto       : out std_logic;
+		  timer_end    : out std_logic;
+		  cap_led      : out std_logic_vector(1 downto 0);
+		  trigger      : out std_logic;
+          entrada_serial : in std_logic;
+          pronto_rx : out std_logic;
+          receber : in std_logic
     );
 end entity;
 
@@ -52,8 +57,12 @@ architecture modulo_medida_fd_arch of modulo_medida_fd is
             distancia0: in std_logic_vector(3 downto 0);
             saida_serial: out std_logic;
             pronto: out std_logic;
+            cap_led: out std_logic_vector(1 downto 0);
             db_dado_tx: out std_logic_vector (7 downto 0);
-            db_estado_tx_dados_sensor, db_estado_tx: out std_logic_vector (3 downto 0)
+            db_estado_tx_dados_sensor, db_estado_tx: out std_logic_vector (3 downto 0);
+            entrada_serial : in std_logic;
+            pronto_rx : out std_logic;
+            receber : in std_logic
         );
     end component;
 
@@ -69,11 +78,11 @@ architecture modulo_medida_fd_arch of modulo_medida_fd is
     end component;
     
     signal s_distancia2, s_distancia1, s_distancia0 : std_logic_vector (3 downto 0);
-    signal s_reset, s_transmite, s_fim, s_proximo, s_saida_serial, s_medir : std_logic;
-    signal s_echo, s_aberto, s_transmitir, s_trigger, s_pronto, s_contar, s_timer_end : std_logic;
-    signal s_posicao : std_logic_vector (1 downto 0);
+    signal s_reset, s_transmite, s_fim, s_proximo, s_saida_serial, s_medir, s_reset_sensor, s_receber : std_logic;
+    signal s_echo, s_aberto, s_transmitir, s_trigger, s_pronto, s_contar, s_timer_end, s_entrada_serial, s_pronto_rx : std_logic;
+    signal s_posicao, s_cap_led : std_logic_vector (1 downto 0);
     signal s_mux_out : std_logic_vector (7 downto 0);
-	signal s_dado_tx: std_logic_vector (7 downto 0);
+	 signal s_dado_tx: std_logic_vector (7 downto 0);
     signal s_estado_tx : std_logic_vector (3 downto 0);
     signal s_porcentagem : std_logic_vector (11 downto 0);
 
@@ -85,18 +94,23 @@ begin
     s_transmitir <= transmitir;
     s_medir <= medir;
     s_contar <= contar;
+	 s_reset_sensor <= reset_sensor;
+     s_entrada_serial <= entrada_serial;
+     s_receber <= receber;
 
-    SENS: sensor port map (clock, s_reset, s_medir, s_echo, s_aberto, s_trigger, s_distancia0,
+    SENS: sensor port map (clock, s_reset_sensor, s_medir, s_echo, s_aberto, s_trigger, s_distancia0,
                              s_distancia1, s_distancia2, open, open, open, open, open, open, open); 
 
     TX: tx_dados_sensor port map (clock, s_reset, s_transmitir, s_distancia2, s_distancia1,
-                                  s_distancia0, s_saida_serial, s_pronto, open, open, open);
+                                  s_distancia0, s_saida_serial, s_pronto, s_cap_led, open, open, open, s_entrada_serial, s_pronto_rx, s_receber);
 
-    1SEC: contadorg_m generic map (M => 50000000) port map (clock, s_reset, '0', s_contar, open, s_timer_end, open);
+    ONE_SEC: contadorg_m generic map (M => 50000000) port map (clock, s_reset, '0', s_contar, open, s_timer_end, open);
 
     saida_serial <= s_saida_serial;
     pronto <= s_pronto;
     trigger <= s_trigger;
     timer_end <= s_timer_end;
+	 cap_led <= s_cap_led;
+     pronto_rx <= s_pronto_rx;
     
 end architecture;

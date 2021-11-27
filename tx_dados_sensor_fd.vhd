@@ -15,8 +15,12 @@ entity tx_dados_sensor_fd is
         saida_serial: out std_logic;
         fim: out std_logic;
         pronto_tx: out std_logic;
+		cap_led  : out std_logic_vector(1 downto 0);
 		db_dado_tx: out std_logic_vector (7 downto 0);
-        db_estado_tx: out std_logic_vector (3 downto 0)
+        db_estado_tx: out std_logic_vector (3 downto 0);
+        entrada_serial: in std_logic;
+        pronto_rx: out std_logic;
+        receber : in std_logic
     );
 end entity;
 
@@ -67,10 +71,10 @@ architecture tx_dados_sensor_fd_arch of tx_dados_sensor_fd is
     end component;
     
     signal s_porcentagem0, s_porcentagem1, s_porcentagem2, s_porcento : std_logic_vector (7 downto 0);
-    signal s_reset, s_transmite, s_fim, s_proximo, s_saida_serial : std_logic;
-    signal s_posicao : std_logic_vector (1 downto 0);
+    signal s_reset, s_transmite, s_fim, s_proximo, s_saida_serial, s_receber : std_logic;
+    signal s_posicao, s_cap_led : std_logic_vector (1 downto 0);
     signal s_mux_out : std_logic_vector (7 downto 0);
-	signal s_dado_tx: std_logic_vector (7 downto 0);
+	signal s_dado_tx, s_dado_recebido_rx: std_logic_vector (7 downto 0);
     signal s_estado_tx : std_logic_vector (3 downto 0);
     signal s_porcentagem : std_logic_vector (11 downto 0);
 
@@ -84,11 +88,12 @@ begin
     s_reset <= reset;
     s_transmite <= transmite;
     s_proximo <= proximo;
+    s_receber <= receber;
 
     MUX: mux_4x1_n generic map (BITS => 8) port map (s_porcentagem0, s_porcentagem1, s_porcentagem2, s_porcento, s_posicao, s_mux_out); 
 
-    UART: uart_8N2 port map (clock, s_reset, s_transmite, s_mux_out, '0', '0', s_saida_serial, pronto_tx, open, 
-                             open, open, s_estado_tx, open, s_dado_tx);
+    UART: uart_8N2 port map (clock, s_reset, s_transmite, s_mux_out, entrada_serial, receber, s_saida_serial, pronto_tx, s_dado_recebido_rx, 
+                             open, pronto_rx, s_estado_tx, open, s_dado_tx);
 
     CONT: contadorg_m generic map (M => 4) port map (clock, s_reset, '0', s_proximo, s_posicao, s_fim, open);
 
@@ -96,26 +101,53 @@ begin
     fim <= s_fim;
     db_estado_tx <= s_estado_tx;
     db_dado_tx <= s_dado_tx;
+	 cap_led <= s_cap_led;
 
-    process (distancia1, distancia0)
+    process (s_dado_recebido_rx)
     begin
-        case distancia1 is 
-            when "0001" => s_porcentagem <= "000000000000";
-            when "0000" =>
-                case distancia0 is
-                    when "0000" => s_porcentagem <= "000100000000";
-                    when "0001" => s_porcentagem <= "000010010000";
-                    when "0010" => s_porcentagem <= "000010000000";
-                    when "0011" => s_porcentagem <= "000001110000";
-                    when "0100" => s_porcentagem <= "000001100000";
-                    when "0101" => s_porcentagem <= "000001010000";
-                    when "0110" => s_porcentagem <= "000001000000";
-                    when "0111" => s_porcentagem <= "000000110000";
-                    when "1000" => s_porcentagem <= "000000100000";
-                    when "1001" => s_porcentagem <= "000000010000";
-                    when others => s_porcentagem <= "000000000000";
+        case s_dado_recebido_rx(7 downto 4) is 
+            when "0110" => 
+					s_porcentagem <= "000000000000";
+					s_cap_led <= "00";
+            when "0011" =>
+                case s_dado_recebido_rx(3 downto 0) is
+                    when "0000" => 
+								s_porcentagem <= "000100000000";
+								s_cap_led <= "10";
+                    when "0001" => 
+								s_porcentagem <= "000010010000";
+								s_cap_led <= "10";
+                    when "0010" => 
+								s_porcentagem <= "000010000000";
+								s_cap_led <= "01";
+                    when "0011" => 
+								s_porcentagem <= "000001110000";
+								s_cap_led <= "01";
+                    when "0100" => 
+								s_porcentagem <= "000001100000";
+								s_cap_led <= "01";
+                    when "0101" => 
+								s_porcentagem <= "000001010000";
+								s_cap_led <= "01";
+                    when "0110" => 
+								s_porcentagem <= "000001000000";
+								s_cap_led <= "00";
+                    when "0111" => 
+								s_porcentagem <= "000000110000";
+								s_cap_led <= "00";
+                    when "1000" => 
+								s_porcentagem <= "000000100000";
+								s_cap_led <= "00";
+                    when "1001" => 
+								s_porcentagem <= "000000010000";
+								s_cap_led <= "00";
+                    when others => 
+								s_porcentagem <= "000000000000";
+								s_cap_led <= "00";
                 end case;
-            when others => s_porcentagem <= "000000000000";
+            when others => 
+					s_porcentagem <= "000000000000";
+					s_cap_led <= "00";
         end case;
     end process;
     
