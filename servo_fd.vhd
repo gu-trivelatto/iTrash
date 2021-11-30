@@ -55,7 +55,8 @@ begin
 
     ONE_SEC: contadorg_m generic map (M => 50000000) port map (clock, s_reset_timer, '0', s_count_sec, open, s_fim, open);
 
-    CONT1: contadorg_m generic map (M=>290) port map(clock, s_reset_timer, '0', s_fim, open, s_close_mid, open);
+    -- original = 290
+	 CONT1: contadorg_m generic map (M=>20) port map(clock, s_reset_timer, '0', s_fim, open, s_close_mid, open);
 
     CONT2: contadorg_m generic map (M=>10) port map(clock, s_reset_timer, '0', s_count_end, open, s_close_end, open);
 

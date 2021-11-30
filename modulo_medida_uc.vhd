@@ -51,11 +51,11 @@ begin
                             else                  Eprox <= recebe;
                             end if; 
                             
-        when transmite =>   if tx_pronto='1' then Eprox <= mede;
+        when transmite =>   if tx_pronto='1' then Eprox <= espera;
                             else                  Eprox <= transmite;
                             end if;
 
-        when others =>      Eprox <= mede;
+        when others =>      Eprox <= espera;
 
       end case;
 

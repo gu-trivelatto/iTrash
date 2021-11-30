@@ -18,7 +18,8 @@ entity sensor is
         db_cent_hex : out std_logic_vector(6 downto 0);
         db_reset    : out std_logic;
         db_ligar    : out std_logic;
-        db_trigger  : out std_logic
+        db_trigger  : out std_logic;
+		  pronto_rx   : in  std_logic
     );
 end entity;
 
@@ -52,7 +53,7 @@ architecture sensor_arch of sensor is
     );
     end component;
 
-    signal s_reset, s_ligar, s_mede, s_aberto, s_echo, s_pronto, s_trigger : std_logic;
+    signal s_reset, s_ligar, s_mede, s_aberto, s_echo, s_pronto, s_trigger, s_pronto_rx : std_logic;
     signal s_medida : std_logic_vector(11 downto 0);
     signal s_estado : std_logic_vector(3 downto 0);
 
@@ -62,8 +63,9 @@ begin
     s_ligar <= ligar;
     s_aberto <= aberto;
     s_echo <= echo;
+	 s_pronto_rx <= pronto_rx;
 
-    UC: sensor_uc port map(clock, s_reset, s_ligar, s_aberto, s_pronto, s_mede, s_estado);
+    UC: sensor_uc port map(clock, s_reset, s_ligar, s_aberto, s_pronto_rx, s_mede, s_estado);
 
     FD: sensor_fd port map(clock, s_reset, s_mede, s_echo, s_pronto, s_trigger, s_medida);
 

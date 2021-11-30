@@ -18,7 +18,8 @@ entity tx_dados_sensor is
         db_estado_tx_dados_sensor, db_estado_tx: out std_logic_vector (3 downto 0);
         entrada_serial : in std_logic;
         pronto_rx : out std_logic;
-        receber : in std_logic
+        receber : in std_logic;
+		  aberto : in std_logic
     );
 end entity;
 
@@ -41,7 +42,8 @@ architecture tx_dados_sensor_arch of tx_dados_sensor is
             db_estado_tx: out std_logic_vector (3 downto 0);
             entrada_serial: in std_logic;
             pronto_rx: out std_logic;
-            receber: in std_logic
+            receber: in std_logic;
+				aberto: in std_logic
         );
     end component;
 
@@ -70,7 +72,7 @@ architecture tx_dados_sensor_arch of tx_dados_sensor is
     );
     end component;
 
-    signal s_reset, s_transmitir, s_saida_serial, s_pronto, s_fim, s_tick, s_zera, s_transmite, s_proximo, s_pronto_tx, s_entrada_serial, s_pronto_rx, s_receber : std_logic;
+    signal s_reset, s_transmitir, s_saida_serial, s_pronto, s_fim, s_tick, s_zera, s_transmite, s_proximo, s_pronto_tx, s_entrada_serial, s_pronto_rx, s_receber, s_aberto : std_logic;
 	signal s_dado_tx: std_logic_vector (7 downto 0);
 	signal s_distancia2, s_distancia1, s_distancia0, s_db_estado, s_estado_tx : std_logic_vector (3 downto 0);
 	signal s_cap_led : std_logic_vector (1 downto 0);
@@ -85,9 +87,10 @@ begin
     s_transmitir <= transmitir;
     s_entrada_serial <= entrada_serial;
     s_receber <= receber;
+	 s_aberto <= aberto;
 
     FD: tx_dados_sensor_fd port map (clock, s_zera, s_transmite, s_proximo, s_distancia2, s_distancia1, 
-                                    s_distancia0, s_saida_serial, s_fim, s_pronto_tx, s_cap_led, s_dado_tx, s_estado_tx, s_entrada_serial, s_pronto_rx, s_receber); 
+                                    s_distancia0, s_saida_serial, s_fim, s_pronto_tx, s_cap_led, s_dado_tx, s_estado_tx, s_entrada_serial, s_pronto_rx, s_receber, s_aberto); 
     
     UC: tx_dados_sensor_uc port map (clock, s_reset, s_transmitir, s_tick, s_fim, s_pronto_tx, s_pronto, s_transmite, s_zera, s_proximo, s_db_estado);
 

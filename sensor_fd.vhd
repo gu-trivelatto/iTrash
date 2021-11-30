@@ -17,6 +17,20 @@ end entity;
 
 architecture sensor_fd_arch of sensor_fd is
 
+	component gerador_pulso is
+		generic (
+			largura: integer:= 25
+		);
+		port(
+			clock:    in  std_logic;
+			reset:    in  std_logic;
+			gera:     in  std_logic;
+			para:     in  std_logic;
+			pulso:    out std_logic;
+			pronto:   out std_logic
+		);
+	end component;
+
     component interface_hcsr04 port (
         clock     : in  std_logic;
         reset     : in  std_logic;
@@ -36,12 +50,9 @@ begin
 
     s_reset <= reset;
     s_mede <= mede;
-    s_echo <= echo;
+	 
+	 PULSO: gerador_pulso generic map (largura => 500) port map (clock, s_reset, s_mede, '0', s_trigger, open);
 
-    HCSR04: interface_hcsr04 port map(clock, s_reset, s_mede, s_echo, s_trigger, s_medida, s_pronto, open);
-
-    pronto <= s_pronto;
-    medida <= s_medida;
     trigger <= s_trigger;
 
 end architecture;

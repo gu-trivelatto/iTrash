@@ -13,7 +13,9 @@ entity modulo_medida is
         trigger      : out std_logic;
 		  cap_led      : out std_logic_vector(1 downto 0);
         db_estado    : out std_logic_vector(3 downto 0);
-        entrada_serial : in std_logic
+        entrada_serial : in std_logic;
+			 estado_tx : out std_logic_vector(3 downto 0);
+			 db_transmitir : out std_logic
     );
 end entity;
 
@@ -36,7 +38,8 @@ architecture modulo_medida_arch of modulo_medida is
             trigger      : out std_logic;
             entrada_serial : in std_logic;
             pronto_rx : out std_logic;
-            receber : in std_logic
+            receber : in std_logic;
+			 estado_tx : out std_logic_vector(3 downto 0)
         );
     end component;
 
@@ -58,7 +61,7 @@ architecture modulo_medida_arch of modulo_medida is
 
     signal s_reset, s_aberto, s_echo, s_saida_serial, s_trigger, s_abrir, s_entrada_serial, s_pronto_rx, s_recebe_dado : std_logic;
     signal s_transmitir, s_pronto, s_medir, s_timer_end, s_contar, s_reset_sensor : std_logic;
-	signal s_db_estado : std_logic_vector (3 downto 0);
+	signal s_db_estado, s_estado_tx : std_logic_vector (3 downto 0);
 	signal s_cap_led : std_logic_vector (1 downto 0);
 
 begin
@@ -69,7 +72,7 @@ begin
     s_entrada_serial <= entrada_serial;
 
     FD: modulo_medida_fd port map (clock, s_reset, s_echo, s_aberto, s_medir, s_transmitir, 
-                                    s_contar, s_reset_sensor, s_saida_serial, s_pronto, s_timer_end, s_cap_led, s_trigger, s_entrada_serial, s_pronto_rx, s_recebe_dado); 
+                                    s_contar, s_reset_sensor, s_saida_serial, s_pronto, s_timer_end, s_cap_led, s_trigger, s_entrada_serial, s_pronto_rx, s_recebe_dado, s_estado_tx); 
     
     UC: modulo_medida_uc port map (clock, s_reset, s_pronto, s_timer_end, s_medir, s_transmitir, s_contar, s_reset_sensor, s_db_estado, s_pronto_rx, s_recebe_dado);
 
@@ -77,6 +80,8 @@ begin
     trigger <= s_trigger;
     db_estado <= s_db_estado;
 	 cap_led <= s_cap_led;
+	 estado_tx <= s_estado_tx;
+	 db_transmitir <= s_transmitir;
 
 
 end architecture;

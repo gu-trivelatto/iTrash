@@ -75,7 +75,7 @@ begin
     SSEG: hex7seg port map(s_state, db_estado);
 
     pwm <= s_pwm;
-    closing_led <= s_close_mid;
+    closing_led <= s_count_end;
     lid_open <= s_lid_open;
 
     db_reset <= s_reset;

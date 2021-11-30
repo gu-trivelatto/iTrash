@@ -17,7 +17,10 @@ entity itrash_fd is
         saida_serial : out std_logic;
 		  cap_led      : out std_logic_vector(1 downto 0);
         trigger      : out std_logic;
-        entrada_serial : in std_logic
+        entrada_serial : in std_logic;
+		  db_estado_sensor : out std_logic_vector(3 downto 0);
+			 estado_tx : out std_logic_vector(3 downto 0);
+			 db_transmitir : out std_logic
     );
 end entity;
 
@@ -47,14 +50,16 @@ architecture itrash_fd_arch of itrash_fd is
             trigger      : out std_logic;
 				cap_led      : out std_logic_vector(1 downto 0);
             db_estado    : out std_logic_vector(3 downto 0);
-            entrada_serial : in std_logic
+            entrada_serial : in std_logic;
+			 estado_tx : out std_logic_vector(3 downto 0);
+			 db_transmitir : out std_logic
         );
     end component;
 
-    signal s_reset, s_mede, s_acionar, s_pwm, s_closing_led, s_entrada_serial : std_logic;
+    signal s_reset, s_mede, s_acionar, s_pwm, s_closing_led, s_entrada_serial, s_db_transmitir : std_logic;
     signal s_lid_open, s_echo, s_saida_serial, s_trigger : std_logic;
     signal s_medida : std_logic_vector(7 downto 0);
-    signal s_db_estado_medida : std_logic_vector(3 downto 0);
+    signal s_db_estado_medida, s_estado_tx : std_logic_vector(3 downto 0);
     signal s_cap_led: std_logic_vector(1 downto 0);
 
 begin
@@ -66,7 +71,7 @@ begin
 
     CTR_SER: servo port map(clock, s_reset, s_acionar, s_pwm, s_closing_led, s_lid_open, open, open, open, open);
 
-    MOD_MED: modulo_medida port map(clock, s_reset, s_lid_open, s_echo, s_saida_serial, s_trigger, s_cap_led, s_db_estado_medida, s_entrada_serial);
+    MOD_MED: modulo_medida port map(clock, s_reset, s_lid_open, s_echo, s_saida_serial, s_trigger, s_cap_led, s_db_estado_medida, s_entrada_serial, s_estado_tx, s_db_transmitir);
 
     pwm <= s_pwm;
     closing_led <= s_closing_led;
@@ -74,5 +79,8 @@ begin
     saida_serial <= s_saida_serial;
     trigger <= s_trigger;
 	 cap_led <= s_cap_led;
+	 db_estado_sensor <= s_db_estado_medida;
+	 estado_tx <= s_estado_tx;
+	 db_transmitir <= s_db_transmitir;
 
 end architecture;

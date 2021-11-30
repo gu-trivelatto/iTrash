@@ -11,7 +11,7 @@ end entity;
 
 architecture tx_dados_sensor_uc_arch of tx_dados_sensor_uc is
 
-    type tipo_estado is (inicial, preparacao, espera, atualiza_dado, transmissao, testa_fim, final);
+    type tipo_estado is (inicial, preparacao, espera, atualiza_dado, transmissao, testa_fim, final, deu_ruim);
     signal Eatual: tipo_estado;  -- estado atual
     signal Eprox:  tipo_estado;  -- proximo estado
 
@@ -44,6 +44,7 @@ begin
                                  end if;
 
         when transmissao =>      if pronto_tx='1' then Eprox <= testa_fim;
+											else                  Eprox <= transmissao;
                                  end if; 
 
         when testa_fim =>        if fim='1' then Eprox <= final;
@@ -53,8 +54,10 @@ begin
         when atualiza_dado =>    Eprox <= espera;
 
         when final =>            Eprox <= inicial;
+		  
+		  when deu_ruim =>         Eprox <= deu_ruim;
 
-        when others =>           Eprox <= inicial;
+        when others =>           Eprox <= deu_ruim;
 
       end case;
 
@@ -84,6 +87,7 @@ begin
             when testa_fim => estado_hex <= "0100";
             when atualiza_dado => estado_hex <= "0101";            
             when final => estado_hex <= "0110";
+				when deu_ruim => estado_hex <= "1110";
             when others => estado_hex <= "1111";
         end case;
     end process;

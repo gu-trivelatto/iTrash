@@ -20,7 +20,8 @@ entity modulo_medida_fd is
 		  trigger      : out std_logic;
           entrada_serial : in std_logic;
           pronto_rx : out std_logic;
-          receber : in std_logic
+          receber : in std_logic;
+			 estado_tx : out std_logic_vector(3 downto 0)
     );
 end entity;
 
@@ -43,7 +44,8 @@ architecture modulo_medida_fd_arch of modulo_medida_fd is
             db_cent_hex : out std_logic_vector(6 downto 0);
             db_reset    : out std_logic;
             db_ligar    : out std_logic;
-            db_trigger  : out std_logic
+            db_trigger  : out std_logic;
+				pronto_rx   : in  std_logic
         );
     end component;
 
@@ -62,7 +64,8 @@ architecture modulo_medida_fd_arch of modulo_medida_fd is
             db_estado_tx_dados_sensor, db_estado_tx: out std_logic_vector (3 downto 0);
             entrada_serial : in std_logic;
             pronto_rx : out std_logic;
-            receber : in std_logic
+            receber : in std_logic;
+				aberto : in std_logic
         );
     end component;
 
@@ -99,10 +102,10 @@ begin
      s_receber <= receber;
 
     SENS: sensor port map (clock, s_reset_sensor, s_medir, s_echo, s_aberto, s_trigger, s_distancia0,
-                             s_distancia1, s_distancia2, open, open, open, open, open, open, open); 
+                             s_distancia1, s_distancia2, open, open, open, open, open, open, open, s_pronto_rx); 
 
     TX: tx_dados_sensor port map (clock, s_reset, s_transmitir, s_distancia2, s_distancia1,
-                                  s_distancia0, s_saida_serial, s_pronto, s_cap_led, open, open, open, s_entrada_serial, s_pronto_rx, s_receber);
+                                  s_distancia0, s_saida_serial, s_pronto, s_cap_led, open, S_estado_tx, open, s_entrada_serial, s_pronto_rx, s_receber, s_aberto);
 
     ONE_SEC: contadorg_m generic map (M => 50000000) port map (clock, s_reset, '0', s_contar, open, s_timer_end, open);
 
@@ -112,5 +115,6 @@ begin
     timer_end <= s_timer_end;
 	 cap_led <= s_cap_led;
      pronto_rx <= s_pronto_rx;
+	  estado_tx <= s_estado_tx;
     
 end architecture;

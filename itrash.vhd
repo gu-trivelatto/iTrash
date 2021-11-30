@@ -20,7 +20,12 @@ entity itrash is
         db_dec_hex     : out std_logic_vector(6 downto 0);
         db_reset       : out std_logic;
         db_acionar     : out std_logic;
-        db_pwm         : out std_logic
+        db_pwm         : out std_logic;
+		  db_cap_led     : out std_logic_vector(1 downto 0);
+		  db_aberto      : out std_logic;
+		  db_estado_sensor : out std_logic_vector(6 downto 0);
+		  db_estado_tx : out std_logic_vector(6 downto 0);
+		  db_transmitir: out std_logic
     );
 end entity;
 
@@ -31,6 +36,7 @@ architecture itrash_arch of itrash is
         reset      : in  std_logic;
         lid_open   : in  std_logic;
         mede       : out std_logic;
+		  reset_uc   : out std_logic;
         estado_hex : out std_logic_vector(3 downto 0)
     );
     end component;
@@ -48,7 +54,10 @@ architecture itrash_arch of itrash is
         saida_serial : out std_logic;
 		  cap_led      : out std_logic_vector(1 downto 0);
         trigger      : out std_logic;
-        entrada_serial : in std_logic
+        entrada_serial : in std_logic;
+		  db_estado_sensor : out std_logic_vector(3 downto 0);
+			 estado_tx : out std_logic_vector(3 downto 0);
+			 db_transmitir : out std_logic
     );
     end component;
 
@@ -65,23 +74,23 @@ architecture itrash_arch of itrash is
     );
     end component;
 
-    signal s_reset, s_acionar, s_acionar_ed, s_mede, s_pwm, s_saida_serial, s_entrada_serial : std_logic;
-    signal s_closing_led, s_lid_open, s_echo, s_trigger : std_logic;
+    signal s_reset, s_acionar, s_acionar_ed, s_mede, s_pwm, s_saida_serial, s_entrada_serial, s_db_transmitir : std_logic;
+    signal s_closing_led, s_lid_open, s_echo, s_trigger, s_reset_uc : std_logic;
     signal s_medida : std_logic_vector(7 downto 0);
-    signal s_state : std_logic_vector(3 downto 0);
+    signal s_state, s_db_estado_sensor, s_estado_tx : std_logic_vector(3 downto 0);
 	 signal s_cap_led : std_logic_vector(1 downto 0);
 
 begin
 
-    s_reset <= reset;
+    s_reset <= reset or s_reset_uc;
     s_acionar <= acionar;
     s_echo <= echo;
     s_entrada_serial <= entrada_serial;
 
-    UC: itrash_uc port map(clock, s_reset, s_lid_open, s_mede, s_state);
+    UC: itrash_uc port map(clock, s_reset, s_lid_open, s_mede, s_reset_uc, s_state);
 
     FD: itrash_fd port map(clock, s_reset, s_mede, s_acionar_ed, s_echo, s_pwm, s_closing_led, 
-                          s_lid_open, s_medida, s_saida_serial, s_cap_led, s_trigger, s_entrada_serial);
+                          s_lid_open, s_medida, s_saida_serial, s_cap_led, s_trigger, s_entrada_serial, s_db_estado_sensor, s_estado_tx, s_db_transmitir);
 
     ED: edge_detector port map(clock, s_acionar, s_acionar_ed);
 
@@ -90,6 +99,10 @@ begin
     SSEG_UNI: hex7seg port map(s_medida(3 downto 0), db_uni_hex);
     
     SSEG_DEC: hex7seg port map(s_medida(7 downto 4), db_dec_hex);
+	 
+	 SSEG_SENS: hex7seg port map(s_db_estado_sensor, db_estado_sensor);
+	 
+	 SSEG_TX: hex7seg port map(s_estado_tx, db_estado_tx);
 
     pwm <= s_pwm;
     closing_led <= s_closing_led;
@@ -97,10 +110,13 @@ begin
     saida_serial <= s_saida_serial;
     trigger <= s_trigger;
 	 aberto <= s_lid_open;
+	 db_aberto <= s_lid_open;
 	 cap_led <= s_cap_led;
+	 db_cap_led <= s_cap_led;
 
     db_reset <= s_reset;
     db_acionar <= s_acionar;
     db_pwm <= s_pwm;
+	 db_transmitir <= s_db_transmitir;
 
 end architecture;
